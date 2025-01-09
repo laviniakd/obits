@@ -230,8 +230,17 @@ async def main(args):
     if len(obit_data) == 0:
         print("No obits found.")
         return
-    df = pd.DataFrame(obit_data)
-    df.to_json(output_dir + 'obits.json', index=False, orient='records')
+    
+    # write to output_dir + obits.jsonl as .jsonl
+    for obit in obit_data:
+        obit['text'] = obit['text'].replace('\n', '\\n')
+
+    with open(output_dir + 'obits.jsonl', 'a') as f:
+        for obit in obit_data:
+            f.write(str(obit) + '\n')
+
+    #df = pd.DataFrame(obit_data)
+    #df.to_json(output_dir + 'obits.json', index=False, orient='records')
 
 
 if __name__ == '__main__':
