@@ -13,67 +13,13 @@ from pyppeteer import launch
 from tenacity import retry, stop_after_attempt, wait_exponential, wait_random, retry_if_exception_type
 
 from obits.src.scraping import misc_utils
+from obits.src.scraping.load_obit_from_url import load_obit_text_and_metadata
 
 
 DEBUG = False
 
 USER_AGENT_STRING = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
 # example legacy api url: https://www.legacy.com/api/_frontend/localmarket/jacksonville-fl?endDate=2024-09-10&limit=300&noticeType=all&offset=600&sortBy=date&startDate=2023-09-10
-
-
-def load_obit_text_and_metadata(obit_url):
-    # get page
-    page = misc_utils.make_request(obit_url)
-    #print(page.content)
-    soup = BeautifulSoup(page.content, 'html.parser')
-
-    obit_data = {}
-
-    # get features
-    name = soup.find('h2', {'data-component': 'NameHeadingText'})
-    if name:
-        name = name.text
-    else:
-        name = 'unknown'
-
-    # note that text is wrapped in <p> tags
-    text = soup.find('div', {'data-component': 'ObituaryText'})
-    if text: # first kind of page
-        text = text.text
-    else:
-        text = soup.find('div', {'data-component': 'ObituaryParagraph'})
-        if text:
-            text = text.text
-        else:
-            return None
-    
-    attribute_box = soup.find('div', {'data-component': 'AttributeValuesBox'})
-    if not attribute_box:
-        e = soup.find('a', {'data-component': 'FuneralHomeDirectoryLink'})
-        if e:
-            funeral_home_link = e.text
-            funeral_location = soup.find('p', {'data-component': 'MemorialEventsFuneralHomeAddress'}).text
-        else:
-            funeral_home_link = 'unknown'
-            funeral_location = 'unknown'
-    else:
-        a_els = attribute_box.find_all('a')
-        if a_els:
-            funeral_home = attribute_box.find_all('a')[0].text
-            funeral_home_link = attribute_box.find_all('a')[0]['href']
-            p_els = attribute_box.find_all('p')
-            funeral_location = '\n'.join([e.text for e in attribute_box.find_all('p')])
-        else:
-            funeral_home_link = 'unknown'
-            funeral_location = 'unknown'
-
-    obit_data['name'] = name
-    obit_data['url'] = obit_url
-    obit_data['text'] = text
-    obit_data['funeral_home_link'] = funeral_home_link
-    obit_data['funeral_location'] = funeral_location
-
-    return obit_data
 
 
 def get_obit_urls_from_city_section(soup, page):
