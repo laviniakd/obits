@@ -4,6 +4,9 @@ from bs4 import BeautifulSoup
 
 all_urls = []
 
+regex
+
+
 for i in range(1, 21):
     print(i)
     print(len(all_urls))
@@ -27,3 +30,14 @@ print(len(only_urls))
 
 with open("only_urls.json", "w") as f:
     json.dump(only_urls, f, indent=4)
+
+"""
+delete
+\u201c
+\u201d
+
+\u00a0\u00a0 - replace with dash
+
+
+
+"""
