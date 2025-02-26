@@ -4,18 +4,20 @@ import argparse
 import threading
 from tqdm import tqdm
 from time import sleep
-from selenium import webdriver
+# from selenium import webdriver
+from seleniumbase import Driver
 import random
+# import undetected_chromedriver as uc
 from datetime import datetime
-from selenium.webdriver.common.by import By
-#from tiktoktools.metadata import extract_metadata
-from tiktoktools.time import generate_random_timestamp
-from tiktoktools.id import generate_ids_from_timestamp
-from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support import expected_conditions
+# from selenium.webdriver.common.by import By
+# from tiktoktools.metadata import extract_metadata
+# from tiktoktools.time import generate_random_timestamp
+# from tiktoktools.id import generate_ids_from_timestamp
+# from selenium.webdriver.support.ui import WebDriverWait
+# from webdriver_manager.chrome import ChromeDriverManager
+# from selenium.webdriver.support import expected_conditions
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from selenium.webdriver.chrome.service import Service as ChromeService
+# from selenium.webdriver.chrome.service import Service as ChromeService
 from obittools import ROOT_DIR, initialize_collection, extract_data
 
 
@@ -54,14 +56,17 @@ def get_driver(reset_driver=False):
             sleep(5)
         setattr(thread_local, 'driver', None)
     if driver is None:
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--window-size=1920,1080")
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--incognito")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        driver = webdriver.Chrome(options=chrome_options, service=ChromeService(ChromeDriverManager().install()))
+        # driver = uc.Chrome()
+        driver = Driver(uc=True, headless=True)
+        #
+        # chrome_options = webdriver.ChromeOptions()
+        # chrome_options.add_argument("--no-sandbox")
+        # chrome_options.add_argument("--window-size=1920,1080")
+        # chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--disable-gpu")
+        # chrome_options.add_argument("--incognito")
+        # chrome_options.add_argument("--disable-dev-shm-usage")
+        # driver = webdriver.Chrome(options=chrome_options, service=ChromeService(ChromeDriverManager().install()))
     setattr(thread_local, 'driver', driver)
     return driver
 
@@ -72,8 +77,8 @@ def build_url(id):
     :param id: id of obituary
     :return: formatted url string
     """
-    base = "www.legacy.com"
-    infix = "/us/obituaries/name/-obituary?id="
+    base = "https://www.legacy.com"
+    infix = "/us/obituaries/name/a-obituary?id="
     url_string = base + infix + str(id)
 
     return url_string
@@ -97,7 +102,7 @@ def check_url(url_tuple):
         try:
             driver = get_driver(reset_driver)
             driver.get(url)
-            WebDriverWait(driver, TIMEOUT).until(expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "script#__UNIVERSAL_DATA_FOR_REHYDRATION__")))
+            # WebDriverWait(driver, TIMEOUT).until(expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "div#topContent2")))
             # driver.implicitly_wait(5)  # wait up to 5 secs just in case things don't load immediately?
             page_source, current_title, current_url = driver.page_source, driver.title, driver.current_url
 
@@ -172,10 +177,6 @@ def check_url(url_tuple):
 def main():
     print(initialize_collection(collection))
     while True:
-        #random_timestamp = generate_random_timestamp(start_timestamp=begin_timestamp, end_timestamp=end_timestamp)
-        #all_ids = generate_ids_from_timestamp(random_timestamp, n=sample_size, limit_incrementer_randomness=incrementer_shortcut)
-        #print(datetime.utcfromtimestamp(random_timestamp))
-
         current_time = datetime.now()
         all_ids = random.sample(range(begin_index, end_index), sample_size)
 
