@@ -1,24 +1,15 @@
 import os
 import json
+import random
 import argparse
 import threading
 from tqdm import tqdm
 from time import sleep
-# from selenium import webdriver
-from seleniumbase import Driver
-import random
-# import undetected_chromedriver as uc
 from datetime import datetime
-# from selenium.webdriver.common.by import By
-# from tiktoktools.metadata import extract_metadata
-# from tiktoktools.time import generate_random_timestamp
-# from tiktoktools.id import generate_ids_from_timestamp
-# from selenium.webdriver.support.ui import WebDriverWait
-# from webdriver_manager.chrome import ChromeDriverManager
-# from selenium.webdriver.support import expected_conditions
+from bs4 import BeautifulSoup
+from seleniumbase import Driver
 from concurrent.futures import ThreadPoolExecutor, as_completed
-# from selenium.webdriver.chrome.service import Service as ChromeService
-from obittools import ROOT_DIR, initialize_collection, extract_data
+from obittools import ROOT_DIR, initialize_collection  #, extract_data
 
 
 parser = argparse.ArgumentParser()
@@ -56,32 +47,28 @@ def get_driver(reset_driver=False):
             sleep(5)
         setattr(thread_local, 'driver', None)
     if driver is None:
-        # driver = uc.Chrome()
         driver = Driver(uc=True, headless=True)
-        #
-        # chrome_options = webdriver.ChromeOptions()
-        # chrome_options.add_argument("--no-sandbox")
-        # chrome_options.add_argument("--window-size=1920,1080")
-        # chrome_options.add_argument("--headless")
-        # chrome_options.add_argument("--disable-gpu")
-        # chrome_options.add_argument("--incognito")
-        # chrome_options.add_argument("--disable-dev-shm-usage")
-        # driver = webdriver.Chrome(options=chrome_options, service=ChromeService(ChromeDriverManager().install()))
     setattr(thread_local, 'driver', driver)
     return driver
 
 
 # example: https://www.legacy.com/us/obituaries/charlotte/name/david-melton-obituary?id=57552782
-def build_url(id):
+def build_url(id, base = "https://www.legacy.com", infix = "/us/obituaries/name/a-obituary?id="):
     """
     :param id: id of obituary
     :return: formatted url string
     """
-    base = "https://www.legacy.com"
-    infix = "/us/obituaries/name/a-obituary?id="
-    url_string = base + infix + str(id)
+    base, infix = base.strip(), infix.strip()
+    return f"{base}{infix}{id}"
 
-    return url_string
+
+def extract_metadata(page_source):
+    soup = BeautifulSoup(page_source, "html.parser")
+    obituary_page_elements = soup.findAll("script", {"data-hypernova-key": "ObituaryPage"})
+    if len(obituary_page_elements) == 1:
+        metadata_json_string = obituary_page_elements[0].text
+        metadata = json.loads(metadata_json_string[4:-3])
+
 
 
 def check_url(url_tuple):
