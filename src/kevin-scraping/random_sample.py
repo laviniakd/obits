@@ -9,7 +9,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from seleniumbase import Driver
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from obittools import ROOT_DIR, initialize_collection  #, extract_data
+from obittools import ROOT_DIR, initialize_collection, extract_data
 
 
 parser = argparse.ArgumentParser()
