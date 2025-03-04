@@ -9,7 +9,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from seleniumbase import Driver
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from obittools import ROOT_DIR, initialize_collection, extract_data
+from obittools import extract_data
 
 
 parser = argparse.ArgumentParser()
@@ -30,7 +30,7 @@ if args.beginindex is not None:
 if args.endindex is not None:
     end_index = args.endindex
 
-collection = f"random_legacy_{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
+collection = f"test_results"
 thread_local = threading.local()
 
 
@@ -62,12 +62,12 @@ def build_url(id, base = "https://www.legacy.com", infix = "/us/obituaries/name/
     return f"{base}{infix}{id}"
 
 
-def extract_metadata(page_source):
-    soup = BeautifulSoup(page_source, "html.parser")
-    obituary_page_elements = soup.findAll("script", {"data-hypernova-key": "ObituaryPage"})
-    if len(obituary_page_elements) == 1:
-        metadata_json_string = obituary_page_elements[0].text
-        metadata = json.loads(metadata_json_string[4:-3])
+#def extract_metadata(page_source):
+#    soup = BeautifulSoup(page_source, "html.parser")
+#    obituary_page_elements = soup.findAll("script", {"data-hypernova-key": "ObituaryPage"})
+#    if len(obituary_page_elements) == 1:
+#        metadata_json_string = obituary_page_elements[0].text
+#        metadata = json.loads(metadata_json_string[4:-3])
 
 
 
@@ -85,13 +85,19 @@ def check_url(url_tuple):
 
     tries, reset_driver = 0, False
     current_title, current_errormsg = "", ""
+
+    print("Processing page")
+
     while tries < 4:
         try:
             driver = get_driver(reset_driver)
+            print("Got driver")
             driver.get(url)
+            print("Got page")
             # WebDriverWait(driver, TIMEOUT).until(expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "div#topContent2")))
             # driver.implicitly_wait(5)  # wait up to 5 secs just in case things don't load immediately?
             page_source, current_title, current_url = driver.page_source, driver.title, driver.current_url
+            print("Got page source")
 
             """
             STRUCTURE:
@@ -109,32 +115,9 @@ def check_url(url_tuple):
             # TODO: what is the title of the page when we're denied?
             if not current_title == "Access Denied":  # this is when we're not blocked
                 # current_status = driver.page_stat
-                json_metadata_object, results_dict = extract_data.load_obit_text_and_metadata(page_source)
-                BAD = False  # for now; if signals in page_data can use those in this bool
-
-                if ((current_url != url) and not BAD):  # this is when we're not blocked and the URL resolves!
-                    # this is
-                    with open(os.path.join(ROOT_DIR, "collections", collection, "metadata", f"{obit_id}.json"),
-                              "w") as f:
-                        json.dump(results_dict, f)
-                    with open(os.path.join(ROOT_DIR, "collections", collection, "full_metadata", f"{obit_id}.json"),
-                              "w") as f:
-                        json.dump(json_metadata_object, f)
-                    # save html
-                    with open(os.path.join(ROOT_DIR, "collections", collection, "html", f"{obit_id}.html"),
-                              "w") as f:
-                        f.write(page_source)
-                    return {
-                        "id": str(obit_id),
-                        "url": current_url,
-                        "title": current_title
-                        }
-                else:  # this is when we're not blocked and the URL fails to resolve
-                    return {
-                        "id": str(obit_id),
-                        "url": current_url,
-                        "title": "_FAILED_TO_RESOLVE_"
-                        }
+                json_metadata_object, results_dict = extract_data.parse_page_metadata_from_schemas_in_html(page_source)
+                print(results_dict)
+                exit()
             else:  # this is when we are blocked -- gotcha
                 driver.quit()
                 sleep(5)
@@ -160,31 +143,14 @@ def check_url(url_tuple):
         "url": url,
         "title": current_title,
         "statusCode": "ERROR",
-        "statusMsg": current_errormsg
+        "statusMsg": current_errormsg,
     }
 
 
 def main():
-    print(initialize_collection(collection))
-    while True:
-        current_time = datetime.now()
-        all_ids = random.sample(range(begin_index, end_index), sample_size)
-
-        with open(os.path.join(ROOT_DIR, "collections", collection, "queries", f"{current_time}_queries.json"), "w") as f:
-            json.dump(all_ids, f)
-        with tqdm(total=len(all_ids)) as pbar:
-            with ThreadPoolExecutor(max_workers=threads) as executor:
-                results = []
-                futures = [executor.submit(check_url, (build_url(generated_id), generated_id)) for
-                           generated_id in all_ids]
-                for future in as_completed(futures):
-                    if future.result()["statusCode"] == "0":
-                        tqdm.write(json.dumps(future.result()))
-                        # tqdm.write("{:b}".format(int(future.result()["id"])).zfill(64))
-                    results.append(future.result())
-                    pbar.update(1)
-        with open(os.path.join(ROOT_DIR, "collections", collection, "queries", f"{current_time}_hits.json"), "w") as f:
-            json.dump(results, f)
+    URL = "https://www.legacy.com/us/obituaries/name/a-obituary?id=57711813"
+    results = check_url((URL, "57711813"))
+    print(results)
 
 
 if __name__ == "__main__":

@@ -18,8 +18,10 @@ from bs4 import BeautifulSoup # check?
 def get_schema_section(html_text):
     soup = BeautifulSoup(html_text, 'html.parser')
     try:
-        json_schemas = soup.find('script', {'type': 'application/json', 'data-hypernova-key': 'ObituaryPage'})
-        json_schemas = json.load(json_schemas.text)
+        json_schemas = soup.find('script', {'data-hypernova-key': 'ObituaryPage'})
+
+        json_schemas = json_schemas.text[4:-3]
+        json_schemas = json.loads(json_schemas)
         return json_schemas
     except:
         return None
@@ -32,7 +34,7 @@ def parse_page_metadata_from_schemas_in_html(page_html):
 
     results_dict = {}
 
-    guestbook_section = json_metadata_object["guestbook"]
+    #guestbook_section = json_metadata_object["guestbook"]
 
     person_details = json_metadata_object["schemas"]["personSchema"]
     address = person_details["address"]
@@ -65,9 +67,6 @@ def parse_page_metadata_from_schemas_in_html(page_html):
     })
 
     news_schema = json_metadata_object["schemas"]["newsArticleSchema"]
-    if news_schema:
-        newspaper = news_schema[""]
-
 
     results_dict.update({
         "news_schema": news_schema
@@ -95,7 +94,7 @@ def parse_page_metadata_from_schemas_in_html(page_html):
         })
 
 
-    obituary_text = obituary_text["obituary"]["text"]
+    obituary_text = json_metadata_object["obituary"]["text"]
 
     results_dict.update({
         "obituary_text": obituary_text
