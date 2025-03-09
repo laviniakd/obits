@@ -10,8 +10,7 @@ from bs4 import BeautifulSoup
 from seleniumbase import Driver
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from obittools import ROOT_DIR, initialize_collection
-
-import obittools
+from obittools.extract_data import parse_page_metadata_from_schemas_in_html
 
 
 parser = argparse.ArgumentParser()
@@ -124,7 +123,7 @@ def check_url(url_tuple):
             # TODO: what is the title of the page when we're denied?
             if not current_title == "Access Denied":  # this is when we're not blocked
                 # current_status = driver.page_stat
-                json_metadata_object, results_dict = obittools.extract_data.parse_page_metadata_from_schemas_in_html(page_source)
+                json_metadata_object, results_dict = parse_page_metadata_from_schemas_in_html(page_source)
                 BAD = False  # for now; if signals in page_data can use those in this bool
 
                 if ((current_url != url) and not BAD):  # this is when we're not blocked and the URL resolves!
