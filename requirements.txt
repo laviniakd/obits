@@ -1,4 +1,4 @@
-beautifulsoup4==4.13.3
+beautifulsoup4==4.12.3
 numpy==1.21.5
 pandas==1.4.2
 pyppeteer==2.0.0
