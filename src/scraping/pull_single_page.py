@@ -8,6 +8,7 @@ from time import sleep
 from datetime import datetime
 from bs4 import BeautifulSoup
 from seleniumbase import Driver
+from selenium.webdriver.chrome.options import Options
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import obittools
 
@@ -47,7 +48,9 @@ def get_driver(reset_driver=False):
             sleep(5)
         setattr(thread_local, 'driver', None)
     if driver is None:
-        driver = Driver(uc=True, headless=True)
+        chrome_options = Options()
+        chrome_options.binary_location = os.getenv("CHROME_BINARY")
+        driver = Driver(options=chrome_options, uc=True, headless=True)
     setattr(thread_local, 'driver', driver)
     return driver
 
