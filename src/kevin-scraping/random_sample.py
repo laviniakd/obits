@@ -69,6 +69,17 @@ def extract_metadata(page_source):
         metadata_json_string = obituary_page_elements[0].text
         metadata = json.loads(metadata_json_string[4:-3])
 
+    return metadata
+
+
+def already_scraped(obit_id):
+    """
+    Check if obit_id has already been scraped
+    :param obit_id: id of obituary
+    :return: bool
+    """
+    return os.path.exists(os.path.join(ROOT_DIR, "collections", collection, "metadata", f"{obit_id}.json"))
+
 
 
 def check_url(url_tuple):
@@ -80,6 +91,8 @@ def check_url(url_tuple):
     """
     url = url_tuple[0]
     obit_id = url_tuple[1]
+
+    assert(not already_scraped(obit_id))
 
     TIMEOUT = 20
 
@@ -125,15 +138,19 @@ def check_url(url_tuple):
                               "w") as f:
                         f.write(page_source)
                     return {
-                        "id": str(obit_id),
-                        "url": current_url,
-                        "title": current_title
+                            "id": str(obit_id),
+                            "url": current_url,
+                            "title": current_title,
+                            "statusCode": "0",
+                            "statusMsg": "URL resolved successfully"
                         }
                 else:  # this is when we're not blocked and the URL fails to resolve
                     return {
                         "id": str(obit_id),
                         "url": current_url,
-                        "title": "_FAILED_TO_RESOLVE_"
+                        "title": "_FAILED_TO_RESOLVE_",
+                        "statusCode": "nonresolution",
+                        "statusMsg": "URL failed to resolve"
                         }
             else:  # this is when we are blocked -- gotcha
                 driver.quit()
@@ -166,6 +183,8 @@ def check_url(url_tuple):
 
 def main():
     print(initialize_collection(collection))
+    all_ids_logged = []
+
     while True:
         current_time = datetime.now()
         all_ids = random.sample(range(begin_index, end_index), sample_size)
@@ -177,14 +196,19 @@ def main():
                 results = []
                 futures = [executor.submit(check_url, (build_url(generated_id), generated_id)) for
                            generated_id in all_ids]
+
                 for future in as_completed(futures):
                     if future.result()["statusCode"] == "0":
                         tqdm.write(json.dumps(future.result()))
+                        all_ids_logged.append(future.result()["id"])
                         # tqdm.write("{:b}".format(int(future.result()["id"])).zfill(64))
                     results.append(future.result())
                     pbar.update(1)
         with open(os.path.join(ROOT_DIR, "collections", collection, "queries", f"{current_time}_hits.json"), "w") as f:
             json.dump(results, f)
+
+        with open(os.path.join(ROOT_DIR, "collections", collection, "queries", f"{current_time}_ids.json"), "w") as f:
+            json.dump(all_ids_logged, f)
 
 
 if __name__ == "__main__":
