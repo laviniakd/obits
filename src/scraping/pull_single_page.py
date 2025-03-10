@@ -93,6 +93,7 @@ def check_url(url_tuple):
     while tries < 4:
         try:
             driver = get_driver(reset_driver)
+            print(driver)
             print("Got driver")
             print(url)
             driver.get(url)
