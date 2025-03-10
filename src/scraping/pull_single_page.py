@@ -40,6 +40,7 @@ def get_driver(reset_driver=False):
     :param reset_driver:
     :return:
     """
+    print(f"reset_driver is {reset_driver}")
     driver = getattr(thread_local, 'driver', None)
     if reset_driver:
         if driver is not None:
@@ -48,6 +49,7 @@ def get_driver(reset_driver=False):
         setattr(thread_local, 'driver', None)
     if driver is None:
         driver = Driver(uc=True, headless=True, binary_location=os.getenv("CHROME_BINARY"))
+        print(driver)
     setattr(thread_local, 'driver', driver)
     return driver
 
@@ -92,6 +94,7 @@ def check_url(url_tuple):
         try:
             driver = get_driver(reset_driver)
             print("Got driver")
+            print(url)
             driver.get(url)
             print("Got page")
             # WebDriverWait(driver, TIMEOUT).until(expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "div#topContent2")))
