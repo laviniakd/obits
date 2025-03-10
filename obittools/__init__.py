@@ -1,5 +1,6 @@
 import os
 import stat
+from obittools.extract_data import parse_page_metadata_from_schemas_in_html
 
 ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
 
