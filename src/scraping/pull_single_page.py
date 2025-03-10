@@ -57,7 +57,6 @@ def get_driver(reset_driver=False):
                         disable_csp=True, 
                         disable_animations=True,
                         disable_images=True,
-                        page_load_strategy="eager",
         )
         print(driver)
     setattr(thread_local, 'driver', driver)
@@ -107,7 +106,7 @@ def check_url(url_tuple):
             print("Got driver")
             print(url)
             driver.get(url)
-            driver.wait_for_attribute(selector='script', attribute='data-hypernova-key', value='ObituaryPage')
+            #driver.wait_for_attribute(selector='script', attribute='data-hypernova-key', value='ObituaryPage')
             # driver.wait_for_element(timeout=100)
             print("Got page")
             # WebDriverWait(driver, TIMEOUT).until(expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "div#topContent2")))
