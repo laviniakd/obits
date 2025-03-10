@@ -48,7 +48,7 @@ def get_driver(reset_driver=False):
             sleep(5)
         setattr(thread_local, 'driver', None)
     if driver is None:
-        driver = Driver(uc=True, binary_location=os.getenv("CHROME_BINARY"))  # headless=True, 
+        driver = Driver(uc=True, headless=True, binary_location=os.getenv("CHROME_BINARY"))
         print(driver)
     setattr(thread_local, 'driver', driver)
     return driver
