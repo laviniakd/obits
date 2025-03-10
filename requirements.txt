@@ -2,6 +2,6 @@ beautifulsoup4
 numpy
 pandas
 pyppeteer
-seleniumbase
+seleniumbase>=4.35.0
 tenacity
 tqdm
