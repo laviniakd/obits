@@ -98,6 +98,7 @@ def check_url(url_tuple):
             # driver.implicitly_wait(5)  # wait up to 5 secs just in case things don't load immediately?
             page_source, current_title, current_url = driver.page_source, driver.title, driver.current_url
             print("Got page source")
+            print(page_source)
 
             """
             STRUCTURE:
