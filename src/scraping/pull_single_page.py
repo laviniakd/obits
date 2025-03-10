@@ -97,6 +97,8 @@ def check_url(url_tuple):
             print("Got driver")
             print(url)
             driver.get(url)
+            driver.wait_for_attribute(selector='script', attribute='data-hypernova-key', value='ObituaryPage')
+            # driver.wait_for_element(timeout=100)
             print("Got page")
             # WebDriverWait(driver, TIMEOUT).until(expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "div#topContent2")))
             # driver.implicitly_wait(5)  # wait up to 5 secs just in case things don't load immediately?
