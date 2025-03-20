@@ -54,7 +54,6 @@ def get_driver(reset_driver=False):
                         no_sandbox=True,
                         disable_gpu=True,
                         disable_csp=True, 
-                        disable_images=True,
         )
         print(driver)
     setattr(thread_local, 'driver', driver)
