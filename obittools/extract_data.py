@@ -30,7 +30,7 @@ def get_schema_section(html_text):
 def parse_page_metadata_from_schemas_in_html(page_html):
     json_metadata_object = get_schema_section(page_html)
     if not json_metadata_object:
-        return None
+        return None, None
 
     results_dict = {}
 

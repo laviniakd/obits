@@ -51,7 +51,7 @@ def get_driver(reset_driver=False):
         setattr(thread_local, 'driver', None)
     if driver is None:
         driver = Driver(uc=True, headless=True, binary_location=os.getenv("CHROME_BINARY"))
-        print(driver)
+        # print(driver)
     setattr(thread_local, 'driver', driver)
     return driver
 
@@ -106,9 +106,8 @@ def check_url(url_tuple):
         try:
             # driver = Driver(uc=True, headless=True, driver_version="/home/kyzheng/obitvenv313/lib/python3.13/site-packages/seleniumbase/drivers/chromedriver", binary_location=os.getenv("CHROME_BINARY"), no_sandbox=True, disable_gpu=True, disable_csp=True, remote_debug=False, use_wire=True,) # get_driver(reset_driver)
             driver = get_driver(reset_driver)
-            print(driver)
-            print("Got driver")
-            print(url)
+            print(f"Got driver: {driver}")
+            print(f"Getting URL: {url}")
             driver.get(url)
             #driver.wait_for_attribute(selector='script', attribute='data-hypernova-key', value='ObituaryPage')
             # driver.wait_for_element(timeout=100)
@@ -117,7 +116,7 @@ def check_url(url_tuple):
             # driver.implicitly_wait(5)  # wait up to 5 secs just in case things don't load immediately?
             page_source, current_title, current_url = driver.page_source, driver.title, driver.current_url
             print("Got page source")
-            print(page_source)
+            # print(page_source)
 
             """
             STRUCTURE:
