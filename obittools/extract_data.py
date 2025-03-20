@@ -24,6 +24,7 @@ def get_schema_section(html_text):
         json_schemas = json.loads(json_schemas)
         return json_schemas
     except:
+        print(html_text)
         return None
 
 
