@@ -97,7 +97,8 @@ def check_url(url_tuple):
 
     while tries < 4:
         try:
-            driver = Driver(uc=True, headless=True, driver_version="/home/kyzheng/obitvenv313/lib/python3.13/site-packages/seleniumbase/drivers/chromedriver", binary_location=os.getenv("CHROME_BINARY"), no_sandbox=True, disable_gpu=True, disable_csp=True, remote_debug=False, use_wire=True,) # get_driver(reset_driver)
+            # driver = Driver(uc=True, headless=True, driver_version="/home/kyzheng/obitvenv313/lib/python3.13/site-packages/seleniumbase/drivers/chromedriver", binary_location=os.getenv("CHROME_BINARY"), no_sandbox=True, disable_gpu=True, disable_csp=True, remote_debug=False, use_wire=True,) # get_driver(reset_driver)
+            Driver(uc=True, headless=True, binary_location=os.getenv("CHROME_BINARY"))
             print(driver)
             print("Got driver")
             print(url)
