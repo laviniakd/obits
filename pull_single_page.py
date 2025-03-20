@@ -51,11 +51,9 @@ def get_driver(reset_driver=False):
         driver = Driver(uc=True, 
                         headless=True, 
                         binary_location=os.getenv("CHROME_BINARY"),
-                        incognito=True,
                         no_sandbox=True,
                         disable_gpu=True,
                         disable_csp=True, 
-                        disable_animations=True,
                         disable_images=True,
         )
         print(driver)
