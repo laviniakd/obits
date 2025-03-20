@@ -33,31 +33,30 @@ if args.endindex is not None:
 collection = f"test_results"
 thread_local = threading.local()
 
-
-def get_driver(reset_driver=False):
-    """
-    manage selenium webdriver instances for each running thread
-    :param reset_driver:
-    :return:
-    """
-    print(f"reset_driver is {reset_driver}")
-    driver = getattr(thread_local, 'driver', None)
-    if reset_driver:
-        if driver is not None:
-            driver.quit()
-            sleep(5)
-        setattr(thread_local, 'driver', None)
-    if driver is None:
-        driver = Driver(uc=True, 
-                        headless=True, 
-                        binary_location=os.getenv("CHROME_BINARY"),
-                        no_sandbox=True,
-                        disable_gpu=True,
-                        disable_csp=True, 
-        )
-        print(driver)
-    setattr(thread_local, 'driver', driver)
-    return driver
+# def get_driver(reset_driver=False):
+#     """
+#     manage selenium webdriver instances for each running thread
+#     :param reset_driver:
+#     :return:
+#     """
+#     print(f"reset_driver is {reset_driver}")
+#     driver = getattr(thread_local, 'driver', None)
+#     if reset_driver:
+#         if driver is not None:
+#             driver.quit()
+#             sleep(5)
+#         setattr(thread_local, 'driver', None)
+#     if driver is None:
+#         driver = Driver(uc=True, 
+#                         headless=True, 
+#                         binary_location=os.getenv("CHROME_BINARY"),
+#                         no_sandbox=True,
+#                         disable_gpu=True,
+#                         disable_csp=True, 
+#         )
+#         print(driver)
+#     setattr(thread_local, 'driver', driver)
+#     return driver
 
 
 # example: https://www.legacy.com/us/obituaries/charlotte/name/david-melton-obituary?id=57552782
@@ -98,7 +97,7 @@ def check_url(url_tuple):
 
     while tries < 4:
         try:
-            driver = get_driver(reset_driver)
+            driver = Driver(uc=True, headless=True, binary_location=os.getenv("CHROME_BINARY"), no_sandbox=True, disable_gpu=True, disable_csp=True) # get_driver(reset_driver)
             print(driver)
             print("Got driver")
             print(url)
@@ -130,11 +129,12 @@ def check_url(url_tuple):
                 # current_status = driver.page_stat
                 json_metadata_object, results_dict = parse_page_metadata_from_schemas_in_html(page_source)
                 print(results_dict)
+                driver.quit()
                 exit()
             else:  # this is when we are blocked -- gotcha
                 driver.quit()
                 sleep(5)
-                setattr(thread_local, 'driver', None)
+                # setattr(thread_local, 'driver', None)
         except Exception as e:
             current_errormsg = str(e)
             # kevin there is sometimes a field in the legacy webpage with the data-component value "LifespanText". includes like 1940 - 2025
@@ -142,10 +142,10 @@ def check_url(url_tuple):
             # modifying data collection code to look for this. word
             if "Message: invalid session id" not in current_errormsg:  # "invalid session id" error is fixed with a driver reset
                 tqdm.write(f"{obit_id} {current_errormsg}")
-            driver = getattr(thread_local, 'driver', None)
+            # driver = getattr(thread_local, 'driver', None)
             if driver is not None:
                 driver.quit()
-            setattr(thread_local, 'driver', None)
+            # setattr(thread_local, 'driver', None)
             sleep(5)
         finally:
             tries += 1
