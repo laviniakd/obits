@@ -31,75 +31,79 @@ def get_schema_section(html_text):
 def parse_page_metadata_from_schemas_in_html(page_html):
     json_metadata_object = get_schema_section(page_html)
     if not json_metadata_object:
+        print(page_html)
         return None, None
 
     results_dict = {}
 
     #guestbook_section = json_metadata_object["guestbook"]
+    # if "schemas" in json_metadata_object.keys() and "personSchema" in json_metadata_object["schemas"].keys():
+    #     person_details = json_metadata_object["schemas"]["personSchema"]
+    #     for key in ["address", "birthDate", "deathDate", "familyName", "givenName"]:
+    #         if key in person_details.keys():
+    #             results_dict[key] = person_details[key]
+    # address = person_details[]
+    # birth_date = person_details[]
+    # death_date = person_details[]
+    # family_name = person_details[]
+    # givenName = person_details[]
+    # official_name = person_details["name"]
 
-    person_details = json_metadata_object["schemas"]["personSchema"]
-    address = person_details["address"]
-    birth_date = person_details["birthDate"]
-    death_date = person_details["deathDate"]
-    family_name = person_details["familyName"]
-    givenName = person_details["givenName"]
-    official_name = person_details["name"]
+    # results_dict.update({
+    #     "address": address,
+    #     "birth_date": birth_date,
+    #     "death_date": death_date,
+    #     "family_name": family_name,
+    #     "given_name": givenName,
+    #     "official_name": official_name
+    # })
 
-    results_dict.update({
-        "address": address,
-        "birth_date": birth_date,
-        "death_date": death_date,
-        "family_name": family_name,
-        "given_name": givenName,
-        "official_name": official_name
-    })
+    # organization_schema = json_metadata_object["schemas"]["organizationSchema"]
+    # funeral_home_address = organization_schema["address"]
+    # funeral_home_name = organization_schema["name"]
+    # funeral_home_phone = organization_schema["telephone"]
+    # funeral_home_url = organization_schema["url"]
 
-    organization_schema = json_metadata_object["schemas"]["organizationSchema"]
-    funeral_home_address = organization_schema["address"]
-    funeral_home_name = organization_schema["name"]
-    funeral_home_phone = organization_schema["telephone"]
-    funeral_home_url = organization_schema["url"]
+    # results_dict.update({
+    #     "funeral_home_address": funeral_home_address,
+    #     "funeral_home_name": funeral_home_name,
+    #     "funeral_home_phone": funeral_home_phone,
+    #     "funeral_home_url": funeral_home_url
+    # })
 
-    results_dict.update({
-        "funeral_home_address": funeral_home_address,
-        "funeral_home_name": funeral_home_name,
-        "funeral_home_phone": funeral_home_phone,
-        "funeral_home_url": funeral_home_url
-    })
+    # news_schema = json_metadata_object["schemas"]["newsArticleSchema"]
 
-    news_schema = json_metadata_object["schemas"]["newsArticleSchema"]
+    # results_dict.update({
+    #     "news_schema": news_schema
+    # })
 
-    results_dict.update({
-        "news_schema": news_schema
-    })
+    # suggested_pages = json_metadata_object["shareModal"]["successFollowInterface"]["suggestedPages"]
+    # if suggested_pages:
+    #     newspaper_name = "unknown"
+    #     community_name = "unknown"
+    #     tag = "unknown"
 
-    suggested_pages = json_metadata_object["shareModal"]["successFollowInterface"]["suggestedPages"]
-    if suggested_pages:
-        newspaper_name = "unknown"
-        community_name = "unknown"
-        tag = "unknown"
+    #     for p in suggested_pages:
+    #         if p["type"] == "NewspaperListing":
+    #             newspaper_name = p["name"]
+    #             tag = p["slug"]
 
-        for p in suggested_pages:
-            if p["type"] == "NewspaperListing":
-                newspaper_name = p["name"]
-                tag = p["slug"]
+    #         elif p["type"] == "CommunityPage":
+    #             community_name = p["name"]
+    #             tag = p["slug"]
 
-            elif p["type"] == "CommunityPage":
-                community_name = p["name"]
-                tag = p["slug"]
-
-        results_dict.update({
-            "newspaper_name": newspaper_name,
-            "community_name": community_name,
-            "tag": tag
-        })
+    #     results_dict.update({
+    #         "newspaper_name": newspaper_name,
+    #         "community_name": community_name,
+    #         "tag": tag
+    #     })
 
 
-    obituary_text = json_metadata_object["obituary"]["text"]
+    # obituary_text = json_metadata_object["obituary"]["text"]
 
-    results_dict.update({
-        "obituary_text": obituary_text
-    })
+    # results_dict.update({
+    #     "obituary_text": obituary_text
+    # })
 
     # return both entire json and results_dict with only useful vars
     return json_metadata_object, results_dict
