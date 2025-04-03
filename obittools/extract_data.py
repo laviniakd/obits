@@ -17,14 +17,24 @@ from bs4 import BeautifulSoup # check?
 
 def get_schema_section(html_text):
     soup = BeautifulSoup(html_text, 'html.parser')
-    try:
+    json_schemas = soup.find('script', {'data-hypernova-key': 'ObituaryPage'})
+    if json_schemas:
         json_schemas = soup.find('script', {'data-hypernova-key': 'ObituaryPage'})
 
         json_schemas = json_schemas.text[4:-3]
         json_schemas = json.loads(json_schemas)
         return json_schemas
-    except:
-        print(html_text)
+    elif '<!--REDUX DATA-->' in html_text:
+        # split by REDUX DATA and VIDDLER; <script> element between them is metadata JSON
+        try:
+            json_schemas = html_text.split('<!--REDUX DATA-->')[1].split('<!--VIDDLER-->')[0]
+            json_schemas = json.loads(json_schemas.strip())
+            return json_schemas
+        except (IndexError, json.JSONDecodeError) as e:
+            # handle cases where the split fails or JSON is malformed
+            print(f"Error parsing JSON from HTML: {e}")
+            return None
+    else:
         return None
 
 
