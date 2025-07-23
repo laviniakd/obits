@@ -118,7 +118,7 @@ def check_url(url_tuple):
 
             if "502" in current_title and "bad gateway" in current_title.lower():
                 raise Exception("502: bad gateway")
-            if f"legacy.com/us/obituaries/name/a-obituary?id={obit_id}" in current_url:
+            if f"a-obituary?id={obit_id}" in current_url:
                 raise Exception("no redirect")
 
             elif not "obituaries/search?firstName=a&lastName=obituary" in current_url:
