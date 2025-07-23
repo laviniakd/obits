@@ -107,7 +107,7 @@ def check_url(url_tuple):
 
     while tries < 5:
         try:
-            driver = Driver(uc=True, page_load_strategy='eager', guest_mode=True, do_not_track=True, headless2=True)  # get_driver(reset_driver)
+            driver = Driver(uc=True, page_load_strategy='eager', guest_mode=True, do_not_track=True)  # , headless2=True)  # get_driver(reset_driver)
             print()
             print(f"Getting URL: {url}")
             wait = WebDriverWait(driver, TIMEOUT)
