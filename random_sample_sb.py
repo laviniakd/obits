@@ -27,7 +27,7 @@ parser.add_argument("-b", "--beginindex", type=int, help="linux timestamp to sta
 parser.add_argument("-e", "--endindex", type=int, help="linux timestamp to end sampling at")
 args = parser.parse_args()
 
-sample_size, threads, begin_index, end_index = 50000, 1, 1, 60000000
+sample_size, threads, begin_index, end_index = 50000, 6, 1, 60000000
 
 if args.samplesize is not None:
     sample_size = args.samplesize
