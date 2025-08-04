@@ -90,7 +90,7 @@ def check_url(url_tuple):
 
     while tries < 5:
         try:
-            sleep(random.random()*10)
+            sleep(random.random()*30)
             """
             #RInW4 div
             """
@@ -164,8 +164,18 @@ def main():
     print(initialize_collection(collection))
     all_ids_logged = []
 
+
+
     round = 0
     while True:
+        with SB(uc=True, test=True, page_load_strategy='eager', do_not_track=True) as sb:
+            url = "https://www.example.com"
+            print()
+            print(f"Getting URL: {url}")
+
+            sb.activate_cdp_mode(url=url)
+            sb.sleep(2)
+            
         all_ids = random.sample(range(begin_index, end_index), sample_size)
 
         with open(os.path.join(ROOT_DIR, "collections", collection, "queries", f"{current_time}_{sample_size}_{round}_queries.json"), "w") as f:
