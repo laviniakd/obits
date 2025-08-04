@@ -27,7 +27,7 @@ parser.add_argument("-b", "--beginindex", type=int, help="linux timestamp to sta
 parser.add_argument("-e", "--endindex", type=int, help="linux timestamp to end sampling at")
 args = parser.parse_args()
 
-sample_size, threads, begin_index, end_index = 50000, 10, 1, 60000000
+sample_size, threads, begin_index, end_index = 50000, 1, 1, 60000000
 
 if args.samplesize is not None:
     sample_size = args.samplesize
@@ -175,7 +175,7 @@ def main():
 
             sb.activate_cdp_mode(url=url)
             sb.sleep(2)
-            
+
         all_ids = random.sample(range(begin_index, end_index), sample_size)
 
         with open(os.path.join(ROOT_DIR, "collections", collection, "queries", f"{current_time}_{sample_size}_{round}_queries.json"), "w") as f:
