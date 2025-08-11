@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "obits"
+version = "0.1.0"
+description = "obituary package"
+readme = "README.md"
+authors = [
+    { name = "Lavinia Dunagan", email = "laviniad@umich.edu" },
+]
+requires-python = ">=3.8"
+dependencies = [
+    "scikit-learn",
+    "numpy",
+]
