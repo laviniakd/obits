@@ -1,0 +1,7 @@
+beautifulsoup4
+numpy
+pandas
+pyppeteer
+seleniumbase>=4.35.0
+tenacity
+tqdm
