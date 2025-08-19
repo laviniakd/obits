@@ -1,3 +1,7 @@
+data/
+html_sample/
+build/
+topic_model/
 collections/
 downloaded_files/
 notebooks/testing.ipynb
