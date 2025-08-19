@@ -3,3 +3,9 @@ downloaded_files/
 notebooks/testing.ipynb
 obittools/__pycache__/__init__.cpython-39.pyc
 obittools/__pycache__/extract_data.cpython-39.pyc
+/obittools/__pycache__
+/.idea
+src/.DS_Store
+src/kevin-scraping/.DS_Store
+src/scraping/.DS_Store
+.DS_Store

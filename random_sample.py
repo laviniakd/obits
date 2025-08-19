@@ -25,7 +25,7 @@ parser.add_argument("-b", "--beginindex", type=int, help="linux timestamp to sta
 parser.add_argument("-e", "--endindex", type=int, help="linux timestamp to end sampling at")
 args = parser.parse_args()
 
-sample_size, threads, begin_index, end_index = 50000, 15, 1, 60000000
+sample_size, threads, begin_index, end_index = 50000, 2, 1, 60000000
 
 if args.samplesize is not None:
     sample_size = args.samplesize
@@ -107,6 +107,7 @@ def check_url(url_tuple):
 
     while tries < 5:
         try:
+            sleep(random.random()*10)
             driver = Driver(uc=True, page_load_strategy='eager', guest_mode=True, do_not_track=True)  # , headless2=True)  # get_driver(reset_driver)
             print()
             print(f"Getting URL: {url}")
@@ -118,7 +119,7 @@ def check_url(url_tuple):
 
             if "502" in current_title and "bad gateway" in current_title.lower():
                 raise Exception("502: bad gateway")
-            if f"a-obituary?id={obit_id}" in current_url:
+            if f"/a-obituary?id={obit_id}" in current_url:
                 raise Exception("no redirect")
 
             elif not "obituaries/search?firstName=a&lastName=obituary" in current_url:

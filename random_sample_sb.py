@@ -7,12 +7,8 @@ from tqdm import tqdm
 from time import sleep
 from datetime import datetime
 from bs4 import BeautifulSoup
-from seleniumbase import Driver
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from obittools import ROOT_DIR, initialize_collection
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 
 from seleniumbase import SB
 
@@ -27,7 +23,7 @@ parser.add_argument("-b", "--beginindex", type=int, help="linux timestamp to sta
 parser.add_argument("-e", "--endindex", type=int, help="linux timestamp to end sampling at")
 args = parser.parse_args()
 
-sample_size, threads, begin_index, end_index = 50000, 6, 1, 60000000
+sample_size, threads, begin_index, end_index = 1000, 1, 1, 60000000
 
 if args.samplesize is not None:
     sample_size = args.samplesize
@@ -73,7 +69,7 @@ def already_scraped(obit_id):
 
 
 
-def check_url(url_tuple):
+def check_url(url_tuple, sb):
     """
     Check if url exists
     :param url_tuple: url and obit_id
@@ -90,57 +86,61 @@ def check_url(url_tuple):
 
     while tries < 5:
         try:
-            sleep(random.random()*30)
+            sleep(random.random()*3)
             """
             #RInW4 div
             """
-            with SB(uc=True, test=True, page_load_strategy='eager', do_not_track=True) as sb:
 
-                print()
-                print(f"Getting URL: {url}")
 
-                sb.activate_cdp_mode(url=url)
-                sb.sleep(2)
-                if "just a moment" in sb.get_title().lower():
-                    sb.uc_gui_click_captcha()
-                    # sb.cdp.gui_click_element("#RInW4 div")
-                    sb.sleep(2)
-                sb.cdp.wait_for_element_visible('/html/body/div[1]/div[1]', timeout=None)
-                page_source, current_title, current_url = sb.get_page_source(), sb.get_title(), sb.get_current_url()
+            print(f"{threading.current_thread().ident}")
+            print(f"Getting URL: {url}")
 
-                if "502" in current_title and "bad gateway" in current_title.lower():
-                    raise Exception("502: bad gateway")
-                if f"/a-obituary?id={obit_id}" in current_url and "just a moment" in sb.get_title().lower():
-                    raise Exception("cloudflare")
-                if f"/a-obituary?id={obit_id}" in current_url:
-                    raise Exception("no redirect")
-                elif not "obituaries/search?firstName=a&lastName=obituary" in current_url:
-                    if ("?pid=" in current_url or "?id=" in current_url):
-                        print()
-                        print(f"Success: {current_url} {current_title}")
-                        with open(os.path.join(ROOT_DIR, "collections", collection, "metadata", f"{obit_id}_obit.html"),
-                                  "w") as f:
-                            f.write(page_source)
-                        if str(obit_id) not in current_url:
-                            current_errormsg = current_url.split("?")[-1]
-                        else:
-                            current_errormsg = "0"
+            # sb.activate_cdp_mode(url=url)
+            sb.get(url)
+            # sb.sleep(5)
+            if "just a moment" in sb.get_title().lower():
+                sb.uc_gui_click_captcha()
+                # sb.cdp.gui_click_element("#RInW4 div")
+                sb.sleep(5)
+            sb.cdp.wait_for_element_visible('/html/body/div[1]/div[1]', timeout=None)
+            page_source, current_title, current_url = sb.get_page_source(), sb.get_title(), sb.get_current_url()
 
-                        return {
-                            "id": str(obit_id),
-                            "url": current_url,
-                            "title": current_title,
-                            "statusCode": "0",
-                            "statusMsg": current_errormsg,
-                        }
-                current_errormsg = "redirect, no obituary id/pid"
-                break
+            if "502" in current_title and "bad gateway" in current_title.lower():
+                raise Exception("502: bad gateway")
+            if f"/a-obituary?id={obit_id}" in current_url and "just a moment" in sb.get_title().lower():
+
+                raise Exception("cloudflare")
+            if f"/a-obituary?id={obit_id}" in current_url:
+                raise Exception("no redirect")
+            elif not "obituaries/search?firstName=a&lastName=obituary" in current_url:
+                if ("?pid=" in current_url or "?id=" in current_url):
+                    print()
+                    print(f"Success: {current_url} {current_title}")
+                    with open(os.path.join(ROOT_DIR, "collections", collection, "metadata", f"{obit_id}_obit.html"),
+                              "w") as f:
+                        f.write(page_source)
+                    if str(obit_id) not in current_url:
+                        current_errormsg = current_url.split("?")[-1]
+                    else:
+                        current_errormsg = "0"
+                    sleep(random.random() * 5)
+                    return {
+                        "id": str(obit_id),
+                        "url": current_url,
+                        "title": current_title,
+                        "statusCode": "0",
+                        "statusMsg": current_errormsg,
+                    }
+            current_errormsg = "redirect, no obituary id/pid"
+            break
 
 
         except Exception as e:
             current_errormsg = str(e)
             if "Message: invalid session id" not in current_errormsg:  # "invalid session id" error is fixed with a driver reset
                 tqdm.write(f"{obit_id} {current_errormsg}")
+            if "cloudflare" in current_errormsg:
+                sb.reconnect(timeout=10)
             # thread_local = threading.local()
             # driver = getattr(thread_local, 'driver', None)
             # if driver is not None:
@@ -168,7 +168,8 @@ def main():
 
     round = 0
     while True:
-        with SB(uc=True, test=True, page_load_strategy='eager', do_not_track=True) as sb:
+        # thread_sb =
+        with SB(uc=True, test=True, page_load_strategy='eager', do_not_track=True, incognito=True) as sb:
             url = "https://www.example.com"
             print()
             print(f"Getting URL: {url}")
@@ -176,23 +177,24 @@ def main():
             sb.activate_cdp_mode(url=url)
             sb.sleep(2)
 
-        all_ids = random.sample(range(begin_index, end_index), sample_size)
+            all_ids = random.sample(range(begin_index, end_index), sample_size)
 
-        with open(os.path.join(ROOT_DIR, "collections", collection, "queries", f"{current_time}_{sample_size}_{round}_queries.json"), "w") as f:
-            json.dump(all_ids, f)
-        with tqdm(total=len(all_ids)) as pbar:
-            with ThreadPoolExecutor(max_workers=threads) as executor:
-                results = []
-                futures = [executor.submit(check_url, (build_url(generated_id), generated_id)) for
-                           generated_id in all_ids]
+            with open(os.path.join(ROOT_DIR, "collections", collection, "queries", f"{current_time}_{sample_size}_{round}_queries.json"), "w") as f:
+                json.dump(all_ids, f)
+            with tqdm(total=len(all_ids)) as pbar:
+                with ThreadPoolExecutor(max_workers=threads) as executor:
 
-                for future in as_completed(futures):
-                    if future.result()["statusCode"] == "0":
-                        # tqdm.write(json.dumps(future.result()))
-                        all_ids_logged.append(future.result()["id"])
-                        # tqdm.write("{:b}".format(int(future.result()["id"])).zfill(64))
-                    results.append(future.result())
-                    pbar.update(1)
+                    results = []
+                    futures = [executor.submit(check_url, (build_url(generated_id), generated_id), sb) for
+                               generated_id in all_ids]
+
+                    for future in as_completed(futures):
+                        if future.result()["statusCode"] == "0":
+                            # tqdm.write(json.dumps(future.result()))
+                            all_ids_logged.append(future.result()["id"])
+                            # tqdm.write("{:b}".format(int(future.result()["id"])).zfill(64))
+                        results.append(future.result())
+                        pbar.update(1)
         with open(os.path.join(ROOT_DIR, "collections", collection, "queries", f"{current_time}_{sample_size}_{round}_hits.json"), "w") as f:
             json.dump(results, f)
 
