@@ -1,7 +1,9 @@
 beautifulsoup4
+nltk
 numpy
 pandas
 pyppeteer
 seleniumbase>=4.35.0
+sentence-transformers
 tenacity
 tqdm
